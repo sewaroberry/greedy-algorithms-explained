@@ -1,6 +1,6 @@
 # 🎯 Greedy Algorithms Explained - Interactive Learning Website
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://yourusername.github.io/greedy-algorithms-explained/)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://sewaroberry.github.io/greedy-algorithms-explained/)
 [![GitHub Pages](https://img.shields.io/badge/Hosted-GitHub_Pages-blue)](https://pages.github.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -68,4 +68,4 @@ Or use a local server:
     npx http-server 
 
 
-**Made with ❤️ for the algorithms community**
+ Made with ❤️ for the algorithms community
