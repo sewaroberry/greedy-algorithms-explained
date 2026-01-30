@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greedy Algorithms Explained - The Art of Optimal Local Choices</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #4ecdc4;
+            --accent: #ffd166;
+            --success: #06d6a0;
+            --warning: #ff9e6d;
+            --dark: #2d3436;
+            --light: #f9f9f9;
+            --gray: #dfe6e9;
+            --greedy-orange: #ff9f1c;
+            --greedy-teal: #2ec4b6;
+            --greedy-red: #e71d36;
+            --greedy-blue: #118ab2;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #ffe8e8 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--greedy-orange) 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="rgba(255,255,255,0.1)" d="M0,0 L100,0 L100,100 Z"/></svg>');
+            background-size: cover;
+        }
+
+        header h1 {
+            font-size: 3.2rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .tagline {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto 20px;
+            line-height: 1.8;
+            position: relative;
+        }
+
+        .tags {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+            position: relative;
+        }
+
+        .tag {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag:hover {
+            transform: translateY(-2px);
+        }
+
+        .content-section {
+            background-color: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .content-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--secondary);
+            font-size: 2.2rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100px;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        h3 {
+            color: var(--greedy-orange);
+            margin: 25px 0 15px;
+            font-size: 1.6rem;
+            padding-left: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .definition-box {
+            display: flex;
+            gap: 30px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .definition-item {
+            flex: 1;
+            min-width: 250px;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 6px solid var(--primary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .definition-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .definition-item h4 {
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .example-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+            overflow-x: auto;
+            border: 1px solid var(--gray);
+        }
+
+        .code-block {
+            background: linear-gradient(135deg, var(--dark) 0%, #34495e 100%);
+            color: #ecf0f1;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-size: 1rem;
+            line-height: 1.6;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .language {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--greedy-orange) 100%);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(255, 107, 107, 0.3);
+        }
+
+        .algorithm-steps {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 6px solid var(--greedy-blue);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .game-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .game-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .game-explanation {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffeaa7 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid var(--accent);
+        }
+
+        .game-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray);
+        }
+
+        .game-title {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary);
+            font-size: 1.8rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .game-display {
+            background: linear-gradient(135deg, var(--dark) 0%, #34495e 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 1.8rem;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 3px solid var(--primary);
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="number"], select, input[type="text"] {
+            padding: 15px;
+            border: 2px solid var(--gray);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        input[type="number"]:focus, select:focus, input[type="text"]:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--greedy-orange) 100%);
+            color: white;
+            border: none;
+            padding: 18px 25px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .greedy-btn {
+            background: linear-gradient(135deg, var(--success) 0%, var(--secondary) 100%);
+            box-shadow: 0 5px 15px rgba(6, 214, 160, 0.3);
+        }
+
+        .greedy-btn:hover {
+            box-shadow: 0 8px 20px rgba(6, 214, 160, 0.4);
+        }
+
+        .attempts-log {
+            margin-top: 25px;
+            max-height: 300px;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 1rem;
+            border: 1px solid var(--gray);
+        }
+
+        .log-entry {
+            padding: 12px;
+            border-bottom: 1px solid var(--gray);
+            animation: fadeIn 0.3s ease-in;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .log-entry:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success {
+            color: var(--success);
+            font-weight: bold;
+            background-color: rgba(6, 214, 160, 0.1);
+            border-radius: 6px;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .example-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid var(--gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .example-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--greedy-orange));
+        }
+
+        .example-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .example-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .example-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--greedy-orange));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--dark);
+            margin-top: 50px;
+            border-top: 2px solid var(--gray);
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Visualization Styles */
+        .visualization-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+            border: 1px solid var(--gray);
+        }
+
+        .visualization-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .coin-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .coin {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .coin::after {
+            content: attr(data-value);
+            position: absolute;
+            bottom: -25px;
+            font-size: 1rem;
+            color: var(--dark);
+        }
+
+        .coin.selected {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .coin-25 { background: linear-gradient(135deg, #ffd166, #ffb347); }
+        .coin-10 { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+        .coin-5 { background: linear-gradient(135deg, #118ab2, #073b4c); }
+        .coin-1 { background: linear-gradient(135deg, #ef476f, #b23a48); }
+
+        .activity-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .activity {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        .activity.selected {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            transform: scale(1.05);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 2px solid var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 10px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border: 2px solid var(--accent);
+            color: #856404;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            border: 2px solid var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+            padding-left: 10px;
+        }
+
+        .game-mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            flex: 1;
+            min-width: 150px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid var(--gray);
+            color: #666;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--greedy-orange) 100%);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--greedy-orange) 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .comparison-table tr:hover {
+            background-color: rgba(255, 107, 107, 0.05);
+        }
+
+        .step-by-step {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 5px solid var(--primary);
+        }
+
+        .step {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed var(--gray);
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--greedy-orange));
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: var(--gray);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--greedy-orange));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        /* Coin animation */
+        @keyframes coinSelect {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1.1) rotate(0deg); }
+        }
+
+        .coin-animation {
+            animation: coinSelect 0.5s ease;
+        }
+
+        /* Item selection animation */
+        @keyframes itemSelect {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        .item-animation {
+            animation: itemSelect 0.5s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .game-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .examples-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .content-section {
+                padding: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Greedy Algorithms Explained</h1>
+            <p class="tagline">Making the best local choice at each step to find a global optimum</p>
+            <div class="tags">
+                <span class="tag"><i class="fas fa-gem"></i> #greedyalgorithms</span>
+                <span class="tag"><i class="fas fa-chart-line"></i> #optimization</span>
+                <span class="tag"><i class="fas fa-bolt"></i> #efficiency</span>
+                <span class="tag"><i class="fas fa-lightbulb"></i> #locallyoptimal</span>
+                <span class="tag"><i class="fas fa-code"></i> #algorithms</span>
+            </div>
+        </header>
+
+        <!-- What is Greedy? -->
+        <section class="content-section">
+            <h2><i class="fas fa-lightbulb"></i> What is a Greedy Algorithm?</h2>
+            
+            <p>A <strong>greedy algorithm</strong> is an algorithmic paradigm that builds up a solution piece by piece, always choosing the next piece that offers the most obvious and immediate benefit. It makes the locally optimal choice at each step with the hope of finding a global optimum.</p>
+            
+            <div class="info-box">
+                <p><strong>Simple Analogy:</strong> Imagine you're at a buffet and you want to maximize your enjoyment. A greedy approach would be to <strong>always take the dish that looks most delicious right now</strong>, without worrying about what comes later. Sometimes this works great, sometimes you fill up on appetizers and miss the main course!</p>
+            </div>
+
+            <div class="definition-box">
+                <div class="definition-item">
+                    <h4><i class="fas fa-check-circle"></i> When Greedy Works</h4>
+                    <ul>
+                        <li>Optimal substructure exists</li>
+                        <li>Greedy choice property holds</li>
+                        <li>Local optimum leads to global optimum</li>
+                        <li>Examples: Minimum spanning tree, Dijkstra's algorithm</li>
+                    </ul>
+                </div>
+                
+                <div class="definition-item">
+                    <h4><i class="fas fa-times-circle"></i> When Greedy Fails</h4>
+                    <ul>
+                        <li>No greedy choice property</li>
+                        <li>Local optimum doesn't lead to global optimum</li>
+                        <li>Need to consider future consequences</li>
+                        <li>Examples: 0/1 Knapsack (sometimes)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-by-step">
+                <h3><i class="fas fa-list-ol"></i> How Greedy Algorithms Work:</h3>
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div><strong>Sort</strong> the items based on some criterion (value/weight ratio, deadline, etc.)</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>Initialize solution as empty</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div><strong>Iterate</strong> through sorted items</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div>At each step, <strong>choose</strong> the item if it improves the solution</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div>Continue until all items processed or constraints met</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Greedy Visualization -->
+        <section class="content-section">
+            <h2><i class="fas fa-eye"></i> Greedy Algorithm Visualization</h2>
+            <p>Let's visualize the classic <strong>Coin Change Problem</strong> using greedy approach:</p>
+            
+            <div class="visualization-section">
+                <h3><i class="fas fa-coins"></i> Coin Change Greedy Algorithm</h3>
+                <p>Goal: Make change for an amount using the fewest coins possible (US coin system: 25, 10, 5, 1 cents)</p>
+                
+                <div class="visualization-container">
+                    <div class="input-group">
+                        <label for="changeAmount"><i class="fas fa-money-bill-wave"></i> Enter amount (cents):</label>
+                        <input type="number" id="changeAmount" min="1" max="1000" value="63">
+                    </div>
+                    
+                    <div class="coin-container" id="coinContainer">
+                        <!-- Coins will be generated here -->
+                    </div>
+                    
+                    <div class="game-display" id="coinResult">
+                        Click "Run Greedy Algorithm" to start
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar" id="coinProgress"></div>
+                    </div>
+                    
+                    <div class="stats-container">
+                        <div class="stat-box">
+                            <div>Amount Remaining</div>
+                            <div class="stat-value" id="remainingAmount">63¢</div>
+                        </div>
+                        <div class="stat-box">
+                            <div>Coins Used</div>
+                            <div class="stat-value" id="coinsUsed">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div>Total Value</div>
+                            <div class="stat-value" id="totalValue">0¢</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button onclick="runGreedyCoinChange()" class="greedy-btn">
+                            <i class="fas fa-play"></i> Run Greedy Algorithm
+                        </button>
+                        <button onclick="stepCoinChange()">
+                            <i class="fas fa-step-forward"></i> Step Through
+                        </button>
+                        <button onclick="resetCoinChange()">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="warning-box" id="coinWarning">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Note:</strong> Greedy works perfectly for US coin system, but fails for some other systems (like 1, 3, 4 cents for making 6 cents).
+                </div>
+            </div>
+        </section>
+
+        <!-- Activity Selection Game -->
+        <section class="content-section">
+            <h2><i class="fas fa-gamepad"></i> Interactive Greedy Games</h2>
+            
+            <div class="game-mode-selector">
+                <button class="mode-btn active" onclick="switchGameMode('activity')">
+                    <i class="fas fa-calendar-check"></i> Activity Selection
+                </button>
+                <button class="mode-btn" onclick="switchGameMode('fractional')">
+                    <i class="fas fa-balance-scale"></i> Fractional Knapsack
+                </button>
+                <button class="mode-btn" onclick="switchGameMode('huffman')">
+                    <i class="fas fa-file-code"></i> Huffman Coding
+                </button>
+                <button class="mode-btn" onclick="switchGameMode('comparison')">
+                    <i class="fas fa-code-compare"></i> Greedy vs DP
+                </button>
+            </div>
+            
+            <!-- Activity Selection Game -->
+            <div id="activityGame" class="game-container">
+                <h3 class="game-title"><i class="fas fa-calendar-check"></i> Activity Selection Problem</h3>
+                <p>Select maximum number of activities that don't overlap in time:</p>
+                
+                <div class="game-controls">
+                    <div class="input-group">
+                        <label for="activityCount"><i class="fas fa-list-ol"></i> Number of activities (3-8):</label>
+                        <input type="range" id="activityCount" min="3" max="8" value="6" oninput="updateActivityCount()">
+                        <div style="text-align: center; font-size: 1.2rem;" id="activityCountDisplay">6 activities</div>
+                    </div>
+                    
+                    <div class="activity-container" id="activityContainer">
+                        <!-- Activities will be generated here -->
+                    </div>
+                    
+                    <button onclick="runActivitySelection()" class="greedy-btn">
+                        <i class="fas fa-play"></i> Run Greedy Selection
+                    </button>
+                    <button onclick="resetActivities()">
+                        <i class="fas fa-redo"></i> Generate New Activities
+                    </button>
+                </div>
+                
+                <div class="attempts-log" id="activityLog">
+                    <div class="log-entry">Click "Run Greedy Selection" to see the algorithm in action.</div>
+                </div>
+                
+                <div id="activityResult" style="margin-top: 15px; padding: 15px; background: var(--light); border-radius: 10px;">
+                    <p><strong>Greedy Strategy:</strong> Always pick the activity with the earliest finish time that doesn't conflict.</p>
+                </div>
+            </div>
+            
+            <!-- Fractional Knapsack Game -->
+            <div id="fractionalGame" class="game-container hidden">
+                <h3 class="game-title"><i class="fas fa-balance-scale"></i> Fractional Knapsack</h3>
+                <p>Maximize value in a knapsack by taking fractions of items:</p>
+                
+                <div class="game-controls">
+                    <div class="input-group">
+                        <label for="knapsackCapacity"><i class="fas fa-weight-hanging"></i> Knapsack Capacity:</label>
+                        <input type="number" id="knapsackCapacity" min="10" max="100" value="50">
+                    </div>
+                    
+                    <div id="itemsContainer" style="margin: 20px 0;">
+                        <!-- Items will be generated here -->
+                    </div>
+                    
+                    <button onclick="solveFractionalKnapsack()" class="greedy-btn">
+                        <i class="fas fa-calculator"></i> Solve with Greedy
+                    </button>
+                    <button onclick="generateRandomItems()">
+                        <i class="fas fa-random"></i> Generate Random Items
+                    </button>
+                </div>
+                
+                <div id="knapsackResult" style="margin-top: 15px;"></div>
+            </div>
+            
+            <!-- Huffman Coding Game -->
+            <div id="huffmanGame" class="game-container hidden">
+                <h3 class="game-title"><i class="fas fa-file-code"></i> Huffman Coding</h3>
+                <p>Create optimal prefix codes for data compression:</p>
+                
+                <div class="game-controls">
+                    <div class="input-group">
+                        <label for="huffmanText"><i class="fas fa-font"></i> Enter text to compress:</label>
+                        <input type="text" id="huffmanText" value="abracadabra" placeholder="Enter text">
+                    </div>
+                    
+                    <button onclick="buildHuffmanTree()" class="greedy-btn">
+                        <i class="fas fa-project-diagram"></i> Build Huffman Tree
+                    </button>
+                </div>
+                
+                <div id="huffmanResult" style="margin-top: 15px;"></div>
+            </div>
+            
+            <!-- Comparison Game -->
+            <div id="comparisonGame" class="game-container hidden">
+                <h3 class="game-title"><i class="fas fa-code-compare"></i> Greedy vs Dynamic Programming</h3>
+                <p>Compare greedy approach with DP for the 0/1 Knapsack problem:</p>
+                
+                <div class="game-controls">
+                    <button onclick="compareGreedyVsDP()" class="greedy-btn">
+                        <i class="fas fa-play"></i> Run Comparison
+                    </button>
+                </div>
+                
+                <div id="comparisonResult" style="margin-top: 15px;"></div>
+                
+                <div style="margin-top: 20px;">
+                    <h4>Key Differences:</h4>
+                    <table class="comparison-table">
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Greedy</th>
+                            <th>Dynamic Programming</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Approach</strong></td>
+                            <td>Local optimum at each step</td>
+                            <td>Considers all possibilities</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Time Complexity</strong></td>
+                            <td>Usually O(n log n)</td>
+                            <td>Usually O(nW)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Optimality</strong></td>
+                            <td>Not always optimal</td>
+                            <td>Always optimal</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Memory</strong></td>
+                            <td>Low (O(1) or O(n))</td>
+                            <td>High (O(nW))</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Greedy Algorithm Examples -->
+        <section class="content-section">
+            <h2><i class="fas fa-code"></i> Greedy Algorithm Examples</h2>
+            <p>Here are classic greedy algorithms with C++ implementations:</p>
+            
+            <div class="examples-grid">
+                <div class="example-card">
+                    <div class="example-title">
+                        <div class="example-icon">1</div>
+                        <h3>Activity Selection</h3>
+                    </div>
+                    <p>Select maximum number of non-overlapping activities.</p>
+                    <div class="code-block">
+                        <span class="language">C++</span>
+                        <pre><span class="keyword">#include</span> &lt;iostream&gt;
+<span class="keyword">#include</span> &lt;vector&gt;
+<span class="keyword">#include</span> &lt;algorithm&gt;
+
+<span class="keyword">using namespace</span> std;
+
+<span class="keyword">struct</span> Activity {
+    <span class="keyword">int</span> start, finish;
+};
+
+<span class="keyword">bool</span> <span class="function">compare</span>(Activity a, Activity b) {
+    <span class="keyword">return</span> a.finish < b.finish;
+}
+
+<span class="keyword">void</span> <span class="function">selectActivities</span>(vector&lt;Activity&gt;& activities) {
+    <span class="comment">// Sort by finish time (Greedy Choice)</span>
+    sort(activities.begin(), activities.end(), compare);
+    
+    <span class="keyword">int</span> n = activities.size();
+    <span class="keyword">int</span> lastFinish = <span class="number">0</span>;
+    
+    cout << <span class="string">"Selected Activities:\n"</span>;
+    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i < n; i++) {
+        <span class="keyword">if</span> (activities[i].start >= lastFinish) {
+            cout << <span class="string">"Start: "</span> << activities[i].start 
+                 << <span class="string">", Finish: "</span> << activities[i].finish << endl;
+            lastFinish = activities[i].finish;
+        }
+    }
+}
+
+<span class="keyword">int</span> <span class="function">main</span>() {
+    vector&lt;Activity&gt; activities = {
+        {<span class="number">1</span>, <span class="number">3</span>}, {<span class="number">2</span>, <span class="number">5</span>}, {<span class="number">4</span>, <span class="number">6</span>},
+        {<span class="number">6</span>, <span class="number">7</span>}, {<span class="number">5</span>, <span class="number">9</span>}, {<span class="number">8</span>, <span class="number">10</span>}
+    };
+    
+    selectActivities(activities);
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+                    </div>
+                    <p><strong><i class="fas fa-clock"></i> Time Complexity:</strong> O(n log n) for sorting</p>
+                    <p><strong><i class="fas fa-memory"></i> Space Complexity:</strong> O(1) additional space</p>
+                    <div class="algorithm-steps">
+                        <strong><i class="fas fa-bolt"></i> Greedy Choice:</strong> Always pick activity with earliest finish time
+                    </div>
+                </div>
+                
+                <div class="example-card">
+                    <div class="example-title">
+                        <div class="example-icon">2</div>
+                        <h3>Fractional Knapsack</h3>
+                    </div>
+                    <p>Maximize value by taking fractions of items.</p>
+                    <div class="code-block">
+                        <span class="language">C++</span>
+                        <pre><span class="keyword">#include</span> &lt;iostream&gt;
+<span class="keyword">#include</span> &lt;vector&gt;
+<span class="keyword">#include</span> &lt;algorithm&gt;
+
+<span class="keyword">using namespace</span> std;
+
+<span class="keyword">struct</span> Item {
+    <span class="keyword">int</span> weight, value;
+    <span class="keyword">double</span> ratio;
+};
+
+<span class="keyword">bool</span> <span class="function">compare</span>(Item a, Item b) {
+    <span class="keyword">return</span> a.ratio > b.ratio; <span class="comment">// Sort descending</span>
+}
+
+<span class="keyword">double</span> <span class="function">fractionalKnapsack</span>(<span class="keyword">int</span> capacity, vector&lt;Item&gt;& items) {
+    <span class="comment">// Calculate value/weight ratio</span>
+    <span class="keyword">for</span> (Item& item : items) {
+        item.ratio = (<span class="keyword">double</span>)item.value / item.weight;
+    }
+    
+    <span class="comment">// Sort by ratio (Greedy Choice)</span>
+    sort(items.begin(), items.end(), compare);
+    
+    <span class="keyword">double</span> totalValue = <span class="number">0.0</span>;
+    <span class="keyword">int</span> remaining = capacity;
+    
+    <span class="keyword">for</span> (Item& item : items) {
+        <span class="keyword">if</span> (remaining >= item.weight) {
+            <span class="comment">// Take whole item</span>
+            totalValue += item.value;
+            remaining -= item.weight;
+        } <span class="keyword">else</span> {
+            <span class="comment">// Take fraction</span>
+            totalValue += item.ratio * remaining;
+            <span class="keyword">break</span>;
+        }
+    }
+    
+    <span class="keyword">return</span> totalValue;
+}
+
+<span class="keyword">int</span> <span class="function">main</span>() {
+    <span class="keyword">int</span> capacity = <span class="number">50</span>;
+    vector&lt;Item&gt; items = {
+        {<span class="number">10</span>, <span class="number">60</span>}, {<span class="number">20</span>, <span class="number">100</span>}, 
+        {<span class="number">30</span>, <span class="number">120</span>}
+    };
+    
+    <span class="keyword">double</span> maxValue = fractionalKnapsack(capacity, items);
+    cout << <span class="string">"Maximum value: "</span> << maxValue << endl;
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+                    </div>
+                    <p><strong><i class="fas fa-clock"></i> Time Complexity:</strong> O(n log n) for sorting</p>
+                    <p><strong><i class="fas fa-memory"></i> Space Complexity:</strong> O(1) additional space</p>
+                    <div class="algorithm-steps">
+                        <strong><i class="fas fa-bolt"></i> Greedy Choice:</strong> Always pick item with highest value/weight ratio
+                    </div>
+                </div>
+                
+                <div class="example-card">
+                    <div class="example-title">
+                        <div class="example-icon">3</div>
+                        <h3>Huffman Coding</h3>
+                    </div>
+                    <p>Optimal prefix coding for lossless data compression.</p>
+                    <div class="code-block">
+                        <span class="language">C++</span>
+                        <pre><span class="keyword">#include</span> &lt;iostream&gt;
+<span class="keyword">#include</span> &lt;queue&gt;
+<span class="keyword">#include</span> &lt;unordered_map&gt;
+
+<span class="keyword">using namespace</span> std;
+
+<span class="keyword">struct</span> Node {
+    <span class="keyword">char</span> ch;
+    <span class="keyword">int</span> freq;
+    Node *left, *right;
+};
+
+<span class="keyword">struct</span> Compare {
+    <span class="keyword">bool</span> <span class="function">operator</span>()(Node* a, Node* b) {
+        <span class="keyword">return</span> a->freq > b->freq; <span class="comment">// Min-heap</span>
+    }
+};
+
+Node* <span class="function">buildHuffmanTree</span>(unordered_map&lt;<span class="keyword">char</span>, <span class="keyword">int</span>&gt;& freq) {
+    priority_queue&lt;Node*, vector&lt;Node*&gt;, Compare&gt; pq;
+    
+    <span class="comment">// Create leaf nodes</span>
+    <span class="keyword">for</span> (<span class="keyword">auto</span> pair : freq) {
+        Node* node = <span class="keyword">new</span> Node();
+        node->ch = pair.first;
+        node->freq = pair.second;
+        node->left = node->right = <span class="keyword">nullptr</span>;
+        pq.push(node);
+    }
+    
+    <span class="comment">// Build tree (Greedy Choice)</span>
+    <span class="keyword">while</span> (pq.size() > <span class="number">1</span>) {
+        Node* left = pq.top(); pq.pop();
+        Node* right = pq.top(); pq.pop();
+        
+        Node* parent = <span class="keyword">new</span> Node();
+        parent->ch = <span class="string">'$'</span>;
+        parent->freq = left->freq + right->freq;
+        parent->left = left;
+        parent->right = right;
+        
+        pq.push(parent);
+    }
+    
+    <span class="keyword">return</span> pq.top();
+}
+
+<span class="keyword">void</span> <span class="function">generateCodes</span>(Node* root, string code, 
+                      unordered_map&lt;<span class="keyword">char</span>, string&gt;& codes) {
+    <span class="keyword">if</span> (!root) <span class="keyword">return</span>;
+    
+    <span class="keyword">if</span> (root->ch != <span class="string">'$'</span>) {
+        codes[root->ch] = code;
+    }
+    
+    generateCodes(root->left, code + <span class="string">"0"</span>, codes);
+    generateCodes(root->right, code + <span class="string">"1"</span>, codes);
+}
+
+<span class="keyword">int</span> <span class="function">main</span>() {
+    string text = <span class="string">"abracadabra"</span>;
+    unordered_map&lt;<span class="keyword">char</span>, <span class="keyword">int</span>&gt; freq;
+    
+    <span class="keyword">for</span> (<span class="keyword">char</span> ch : text) freq[ch]++;
+    
+    Node* root = buildHuffmanTree(freq);
+    
+    unordered_map&lt;<span class="keyword">char</span>, string&gt; codes;
+    generateCodes(root, <span class="string">""</span>, codes);
+    
+    <span class="keyword">for</span> (<span class="keyword">auto</span> pair : codes) {
+        cout << pair.first << <span class="string">": "</span> << pair.second << endl;
+    }
+    
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+                    </div>
+                    <p><strong><i class="fas fa-clock"></i> Time Complexity:</strong> O(n log n)</p>
+                    <p><strong><i class="fas fa-memory"></i> Space Complexity:</strong> O(n)</p>
+                    <div class="algorithm-steps">
+                        <strong><i class="fas fa-bolt"></i> Greedy Choice:</strong> Always merge two nodes with smallest frequency
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- When to Use Greedy -->
+        <section class="content-section">
+            <h2><i class="fas fa-check-circle"></i> When to Use Greedy Algorithms</h2>
+            
+            <div class="definition-box">
+                <div class="definition-item">
+                    <h4><i class="fas fa-thumbs-up"></i> Greedy Works Perfectly</h4>
+                    <ul>
+                        <li><strong>Activity Selection</strong> - Choose earliest finishing</li>
+                        <li><strong>Huffman Coding</strong> - Merge smallest frequencies</li>
+                        <li><strong>Dijkstra's Algorithm</strong> - Shortest path</li>
+                        <li><strong>Kruskal's/Prim's</strong> - Minimum spanning tree</li>
+                        <li><strong>Fractional Knapsack</strong> - Highest value/weight ratio</li>
+                    </ul>
+                </div>
+                
+                <div class="definition-item">
+                    <h4><i class="fas fa-thumbs-down"></i> Greedy Usually Fails</h4>
+                    <ul>
+                        <li><strong>0/1 Knapsack</strong> - Need Dynamic Programming</li>
+                        <li><strong>Travelling Salesman</strong> - Need DP or backtracking</li>
+                        <li><strong>General Coin Systems</strong> - Some systems need DP</li>
+                        <li><strong>Job Scheduling</strong> - Some variants need DP</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h3><i class="fas fa-lightbulb"></i> How to Verify Greedy Choice Property</h3>
+                <p>To prove a greedy algorithm is optimal:</p>
+                <ol>
+                    <li><strong>Greedy Choice Property:</strong> A global optimum can be arrived at by selecting a local optimum</li>
+                    <li><strong>Optimal Substructure:</strong> An optimal solution contains optimal solutions to subproblems</li>
+                    <li><strong>Exchange Argument:</strong> Show any optimal solution can be transformed to the greedy solution</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Practice Problems -->
+        <section class="content-section">
+            <h2><i class="fas fa-dumbbell"></i> Practice Problems</h2>
+            
+            <div class="examples-grid">
+                <div class="example-card" style="border-color: var(--success);">
+                    <h3><i class="fas fa-star"></i> Beginner</h3>
+                    <ul>
+                        <li>Coin Change (US system)</li>
+                        <li>Activity Selection</li>
+                        <li>Fractional Knapsack</li>
+                        <li>Minimum Platforms for trains</li>
+                        <li>Job Sequencing with deadlines</li>
+                    </ul>
+                    <button onclick="showBeginnerProblems()" style="margin-top: 15px; width: 100%;">
+                        <i class="fas fa-play"></i> Try Problems
+                    </button>
+                </div>
+                
+                <div class="example-card" style="border-color: var(--warning);">
+                    <h3><i class="fas fa-star-half-alt"></i> Intermediate</h3>
+                    <ul>
+                        <li>Huffman Coding</li>
+                        <li>Dijkstra's Algorithm</li>
+                        <li>Kruskal's Algorithm (MST)</li>
+                        <li>Prim's Algorithm (MST)</li>
+                        <li>Interval Scheduling</li>
+                    </ul>
+                    <button onclick="showIntermediateProblems()" style="margin-top: 15px; width: 100%;">
+                        <i class="fas fa-play"></i> Try Problems
+                    </button>
+                </div>
+                
+                <div class="example-card" style="border-color: var(--accent);">
+                    <h3><i class="fas fa-star"></i> <i class="fas fa-star"></i> Advanced</h3>
+                    <ul>
+                        <li>Set Cover Problem</li>
+                        <li>Knapsack with greedy approximation</li>
+                        <li>Traveling Salesman approximation</li>
+                        <li>Greedy coloring of graphs</li>
+                        <li>Approximation algorithms</li>
+                    </ul>
+                    <button onclick="showAdvancedProblems()" style="margin-top: 15px; width: 100%;">
+                        <i class="fas fa-play"></i> Try Problems
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p style="font-size: 1.4rem; margin-bottom: 10px; color: var(--primary); font-weight: bold;">
+                <i class="fas fa-gem"></i> Greedy Algorithms Mastery
+            </p>
+            <p>Remember: <strong>Think locally, optimize globally!</strong> Greedy algorithms make the best choice at each step without worrying about the future.</p>
+            <p style="margin-top: 20px; color: #6c757d;">
+                <i class="fas fa-code"></i> Built for learning | 
+                <i class="fas fa-graduation-cap"></i> Start simple, understand when greedy works
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // =====================
+        // Global Variables
+        // =====================
+        let currentGameMode = 'activity';
+        let coins = [25, 10, 5, 1];
+        let coinChangeAmount = 0;
+        let currentCoinIndex = 0;
+        let selectedCoins = [];
+        let activities = [];
+        let selectedActivities = [];
+        
+        // =====================
+        // Game Mode Switching
+        // =====================
+        function switchGameMode(mode) {
+            currentGameMode = mode;
+            
+            // Update button styles
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show/hide game containers
+            document.getElementById('activityGame').classList.toggle('hidden', mode !== 'activity');
+            document.getElementById('fractionalGame').classList.toggle('hidden', mode !== 'fractional');
+            document.getElementById('huffmanGame').classList.toggle('hidden', mode !== 'huffman');
+            document.getElementById('comparisonGame').classList.toggle('hidden', mode !== 'comparison');
+            
+            if (mode === 'activity') {
+                initializeActivities();
+            } else if (mode === 'fractional') {
+                generateRandomItems();
+            }
+        }
+        
+        // =====================
+        // Coin Change Visualization
+        // =====================
+        function initializeCoinChange() {
+            coinChangeAmount = parseInt(document.getElementById('changeAmount').value) || 63;
+            selectedCoins = [];
+            currentCoinIndex = 0;
+            
+            // Update display
+            document.getElementById('remainingAmount').textContent = coinChangeAmount + '¢';
+            document.getElementById('coinsUsed').textContent = '0';
+            document.getElementById('totalValue').textContent = '0¢';
+            document.getElementById('coinResult').textContent = `Making change for ${coinChangeAmount}¢`;
+            document.getElementById('coinProgress').style.width = '0%';
+            
+            // Generate coin display
+            const coinContainer = document.getElementById('coinContainer');
+            coinContainer.innerHTML = '';
+            
+            coins.forEach(coin => {
+                const coinDiv = document.createElement('div');
+                coinDiv.className = `coin coin-${coin}`;
+                coinDiv.setAttribute('data-value', `${coin}¢`);
+                coinDiv.textContent = `${coin}¢`;
+                coinDiv.onclick = () => selectCoinManually(coin);
+                coinContainer.appendChild(coinDiv);
+            });
+            
+            // Update warning for non-greedy coin systems
+            const warningBox = document.getElementById('coinWarning');
+            if ([1, 3, 4].includes(coinChangeAmount % 6) && coinChangeAmount > 5) {
+                warningBox.innerHTML = `
+                    <strong><i class="fas fa-exclamation-triangle"></i> Important:</strong> 
+                    For coin system [1, 3, 4], greedy would fail for ${coinChangeAmount}¢! 
+                    For 6¢, greedy gives [4, 1, 1] (3 coins) but optimal is [3, 3] (2 coins).
+                `;
+            } else {
+                warningBox.innerHTML = `
+                    <strong><i class="fas fa-exclamation-triangle"></i> Note:</strong> 
+                    Greedy works perfectly for US coin system, but fails for some other systems 
+                    (like 1, 3, 4 cents for making 6 cents).
+                `;
+            }
+        }
+        
+        function runGreedyCoinChange() {
+            initializeCoinChange();
+            
+            let remaining = coinChangeAmount;
+            selectedCoins = [];
+            let steps = 0;
+            const totalSteps = coins.length;
+            
+            function processNextCoin() {
+                if (remaining === 0 || steps >= totalSteps) {
+                    document.getElementById('coinResult').innerHTML = `
+                        <strong>Solution Complete!</strong><br>
+                        ${coinChangeAmount}¢ = ${selectedCoins.map(c => c.value + '¢').join(' + ')}<br>
+                        Total coins: ${selectedCoins.length}
+                    `;
+                    document.getElementById('coinProgress').style.width = '100%';
+                    return;
+                }
+                
+                const currentCoin = coins[steps];
+                steps++;
+                
+                // Update progress
+                document.getElementById('coinProgress').style.width = `${(steps / totalSteps) * 100}%`;
+                
+                // Highlight current coin being considered
+                const coinElements = document.querySelectorAll('.coin');
+                coinElements.forEach(el => el.classList.remove('coin-animation'));
+                coinElements[steps-1].classList.add('coin-animation');
+                
+                // Calculate how many of this coin we can use
+                const count = Math.floor(remaining / currentCoin);
+                
+                if (count > 0) {
+                    // Add coins to solution
+                    for (let i = 0; i < count; i++) {
+                        selectedCoins.push({ value: currentCoin });
+                    }
+                    remaining -= currentCoin * count;
+                    
+                    // Update displays
+                    document.getElementById('remainingAmount').textContent = remaining + '¢';
+                    document.getElementById('coinsUsed').textContent = selectedCoins.length;
+                    document.getElementById('totalValue').textContent = 
+                        (coinChangeAmount - remaining) + '¢';
+                    
+                    // Add log entry
+                    const log = document.createElement('div');
+                    log.className = 'log-entry';
+                    log.textContent = `Used ${count} × ${currentCoin}¢ coin(s). Remaining: ${remaining}¢`;
+                    document.querySelector('.attempts-log')?.appendChild(log);
+                }
+                
+                // Continue with next coin
+                setTimeout(processNextCoin, 800);
+            }
+            
+            // Clear previous log
+            const logContainer = document.querySelector('.attempts-log');
+            if (logContainer) {
+                logContainer.innerHTML = '<div class="log-entry">Starting greedy coin change...</div>';
+            }
+            
+            // Start processing
+            processNextCoin();
+        }
+        
+        function stepCoinChange() {
+            if (selectedCoins.length === 0) {
+                initializeCoinChange();
+            }
+            
+            if (coinChangeAmount === 0) {
+                alert('Change already complete! Reset to try again.');
+                return;
+            }
+            
+            const currentCoin = coins[currentCoinIndex];
+            const count = Math.floor(coinChangeAmount / currentCoin);
+            
+            if (count > 0) {
+                for (let i = 0; i < count; i++) {
+                    selectedCoins.push({ value: currentCoin });
+                }
+                coinChangeAmount -= currentCoin * count;
+                
+                // Update displays
+                document.getElementById('remainingAmount').textContent = coinChangeAmount + '¢';
+                document.getElementById('coinsUsed').textContent = selectedCoins.length;
+                document.getElementById('totalValue').textContent = 
+                    (parseInt(document.getElementById('changeAmount').value) - coinChangeAmount) + '¢';
+                
+                // Add log entry
+                const log = document.createElement('div');
+                log.className = 'log-entry';
+                log.textContent = `Used ${count} × ${currentCoin}¢ coin(s). Remaining: ${coinChangeAmount}¢`;
+                document.querySelector('.attempts-log')?.appendChild(log);
+                
+                // Highlight coin
+                const coinElements = document.querySelectorAll('.coin');
+                coinElements[currentCoinIndex].classList.add('coin-animation');
+                setTimeout(() => {
+                    coinElements[currentCoinIndex].classList.remove('coin-animation');
+                }, 500);
+            }
+            
+            currentCoinIndex++;
+            document.getElementById('coinProgress').style.width = 
+                `${(currentCoinIndex / coins.length) * 100}%`;
+            
+            if (coinChangeAmount === 0) {
+                document.getElementById('coinResult').innerHTML = `
+                    <strong>Solution Complete!</strong><br>
+                    Change = ${selectedCoins.map(c => c.value + '¢').join(' + ')}<br>
+                    Total coins: ${selectedCoins.length}
+                `;
+            }
+        }
+        
+        function resetCoinChange() {
+            initializeCoinChange();
+            const logContainer = document.querySelector('.attempts-log');
+            if (logContainer) {
+                logContainer.innerHTML = '<div class="log-entry">Ready for greedy coin change...</div>';
+            }
+        }
+        
+        function selectCoinManually(coinValue) {
+            if (coinChangeAmount === 0) {
+                alert('Change already complete! Reset to try again.');
+                return;
+            }
+            
+            if (coinValue <= coinChangeAmount) {
+                selectedCoins.push({ value: coinValue });
+                coinChangeAmount -= coinValue;
+                
+                // Update displays
+                document.getElementById('remainingAmount').textContent = coinChangeAmount + '¢';
+                document.getElementById('coinsUsed').textContent = selectedCoins.length;
+                document.getElementById('totalValue').textContent = 
+                    (parseInt(document.getElementById('changeAmount').value) - coinChangeAmount) + '¢';
+                
+                // Add log entry
+                const log = document.createElement('div');
+                log.className = 'log-entry';
+                log.textContent = `Manually selected ${coinValue}¢ coin. Remaining: ${coinChangeAmount}¢`;
+                document.querySelector('.attempts-log')?.appendChild(log);
+                
+                if (coinChangeAmount === 0) {
+                    document.getElementById('coinResult').innerHTML = `
+                        <strong>Change Complete!</strong><br>
+                        You used ${selectedCoins.length} coins<br>
+                        Solution: ${selectedCoins.map(c => c.value + '¢').join(' + ')}
+                    `;
+                }
+            } else {
+                alert(`Cannot use ${coinValue}¢ coin. Only ${coinChangeAmount}¢ remaining.`);
+            }
+        }
+        
+        // =====================
+        // Activity Selection Game
+        // =====================
+        function initializeActivities() {
+            const count = parseInt(document.getElementById('activityCount').value);
+            activities = generateRandomActivities(count);
+            selectedActivities = [];
+            
+            const container = document.getElementById('activityContainer');
+            const log = document.getElementById('activityLog');
+            
+            container.innerHTML = '';
+            log.innerHTML = '<div class="log-entry">Activities generated. Click "Run Greedy Selection" to start.</div>';
+            
+            // Display activities
+            activities.forEach((activity, index) => {
+                const activityDiv = document.createElement('div');
+                activityDiv.className = 'activity';
+                activityDiv.innerHTML = `
+                    <strong>Activity ${index + 1}</strong>
+                    <div>Start: ${activity.start}</div>
+                    <div>End: ${activity.finish}</div>
+                `;
+                container.appendChild(activityDiv);
+            });
+            
+            // Update result display
+            document.getElementById('activityResult').innerHTML = `
+                <p><strong>Greedy Strategy:</strong> Always pick the activity with the earliest finish time that doesn't conflict.</p>
+                <p>Total activities: ${activities.length}</p>
+            `;
+        }
+        
+        function generateRandomActivities(count) {
+            const activities = [];
+            for (let i = 0; i < count; i++) {
+                const start = Math.floor(Math.random() * 12) + 1;
+                const duration = Math.floor(Math.random() * 5) + 1;
+                activities.push({
+                    start: start,
+                    finish: start + duration,
+                    index: i
+                });
+            }
+            // Sort by finish time for display
+            return activities.sort((a, b) => a.finish - b.finish);
+        }
+        
+        function updateActivityCount() {
+            const count = document.getElementById('activityCount').value;
+            document.getElementById('activityCountDisplay').textContent = `${count} activities`;
+            initializeActivities();
+        }
+        
+        function runActivitySelection() {
+            const log = document.getElementById('activityLog');
+            const activityElements = document.querySelectorAll('.activity');
+            
+            log.innerHTML = '<div class="log-entry">Starting greedy activity selection...</div>';
+            selectedActivities = [];
+            
+            // Sort activities by finish time (greedy choice)
+            const sortedActivities = [...activities].sort((a, b) => a.finish - b.finish);
+            
+            let lastFinish = 0;
+            let step = 0;
+            
+            function processNextActivity() {
+                if (step >= sortedActivities.length) {
+                    log.innerHTML += `<div class="log-entry success">Selection complete! Selected ${selectedActivities.length} activities.</div>`;
+                    
+                    // Update result display
+                    document.getElementById('activityResult').innerHTML = `
+                        <p><strong>Selected Activities:</strong> ${selectedActivities.map(a => `A${a.index + 1}`).join(', ')}</p>
+                        <p><strong>Total selected:</strong> ${selectedActivities.length} out of ${activities.length} activities</p>
+                        <p><strong>Greedy choice:</strong> Always pick earliest finishing activity</p>
+                    `;
+                    return;
+                }
+                
+                const activity = sortedActivities[step];
+                step++;
+                
+                if (activity.start >= lastFinish) {
+                    // Select this activity
+                    selectedActivities.push(activity);
+                    lastFinish = activity.finish;
+                    
+                    // Highlight selected activity
+                    activityElements[activity.index].classList.add('selected');
+                    activityElements[activity.index].classList.add('item-animation');
+                    
+                    // Add log entry
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry success';
+                    entry.textContent = `Selected Activity ${activity.index + 1} (${activity.start}-${activity.finish})`;
+                    log.appendChild(entry);
+                    
+                    // Scroll to bottom
+                    log.scrollTop = log.scrollHeight;
+                } else {
+                    // Activity conflicts, skip it
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry';
+                    entry.textContent = `Skipped Activity ${activity.index + 1} (conflicts with previous)`;
+                    log.appendChild(entry);
+                }
+                
+                // Continue with next activity
+                setTimeout(processNextActivity, 1000);
+            }
+            
+            processNextActivity();
+        }
+        
+        function resetActivities() {
+            initializeActivities();
+        }
+        
+        // =====================
+        // Fractional Knapsack Game
+        // =====================
+        function generateRandomItems() {
+            const itemsContainer = document.getElementById('itemsContainer');
+            const items = [];
+            
+            // Generate 3-5 random items
+            const count = Math.floor(Math.random() * 3) + 3;
+            
+            let html = '<h4>Available Items:</h4><div style="display: flex; flex-wrap: wrap; gap: 15px; margin: 15px 0;">';
+            
+            for (let i = 0; i < count; i++) {
+                const weight = Math.floor(Math.random() * 30) + 5;
+                const value = Math.floor(Math.random() * 100) + 20;
+                const ratio = (value / weight).toFixed(2);
+                
+                items.push({ weight, value, ratio });
+                
+                html += `
+                    <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; min-width: 150px;">
+                        <strong>Item ${i + 1}</strong><br>
+                        Weight: ${weight} kg<br>
+                        Value: $${value}<br>
+                        Ratio: ${ratio} $/kg
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            itemsContainer.innerHTML = html;
+            
+            // Store items globally for solving
+            window.knapsackItems = items;
+        }
+        
+        function solveFractionalKnapsack() {
+            const capacity = parseInt(document.getElementById('knapsackCapacity').value) || 50;
+            const items = window.knapsackItems || [];
+            
+            if (items.length === 0) {
+                generateRandomItems();
+                return;
+            }
+            
+            // Sort items by value/weight ratio (greedy choice)
+            const sortedItems = [...items].sort((a, b) => b.ratio - a.ratio);
+            
+            let remainingCapacity = capacity;
+            let totalValue = 0;
+            let solution = [];
+            
+            for (const item of sortedItems) {
+                if (remainingCapacity >= item.weight) {
+                    // Take whole item
+                    solution.push({
+                        item: `Item ${items.indexOf(item) + 1}`,
+                        fraction: 1,
+                        value: item.value,
+                        weight: item.weight
+                    });
+                    totalValue += item.value;
+                    remainingCapacity -= item.weight;
+                } else if (remainingCapacity > 0) {
+                    // Take fraction
+                    const fraction = remainingCapacity / item.weight;
+                    solution.push({
+                        item: `Item ${items.indexOf(item) + 1}`,
+                        fraction: fraction.toFixed(2),
+                        value: item.value * fraction,
+                        weight: remainingCapacity
+                    });
+                    totalValue += item.value * fraction;
+                    remainingCapacity = 0;
+                    break;
+                }
+            }
+            
+            const resultDiv = document.getElementById('knapsackResult');
+            resultDiv.innerHTML = `
+                <div class="success-box">
+                    <h4><i class="fas fa-check-circle"></i> Fractional Knapsack Solution</h4>
+                    <p><strong>Capacity:</strong> ${capacity} kg</p>
+                    <p><strong>Total Value:</strong> $${totalValue.toFixed(2)}</p>
+                    <p><strong>Items taken:</strong></p>
+                    <ul>
+                        ${solution.map(s => 
+                            `<li>${s.item}: ${s.fraction} × (${s.weight} kg, $${s.value.toFixed(2)})</li>`
+                        ).join('')}
+                    </ul>
+                    <p><strong>Greedy Strategy:</strong> Always take item with highest value/weight ratio first</p>
+                </div>
+            `;
+        }
+        
+        // =====================
+        // Huffman Coding Game
+        // =====================
+        function buildHuffmanTree() {
+            const text = document.getElementById('huffmanText').value || 'abracadabra';
+            const freq = {};
+            
+            // Calculate frequencies
+            for (const char of text) {
+                freq[char] = (freq[char] || 0) + 1;
+            }
+            
+            // Create nodes
+            const nodes = Object.entries(freq).map(([char, count]) => ({
+                char,
+                freq: count,
+                left: null,
+                right: null
+            }));
+            
+            // Build Huffman tree (greedy: always merge smallest frequencies)
+            while (nodes.length > 1) {
+                nodes.sort((a, b) => a.freq - b.freq);
+                
+                const left = nodes.shift();
+                const right = nodes.shift();
+                
+                const parent = {
+                    char: '*',
+                    freq: left.freq + right.freq,
+                    left: left,
+                    right: right
+                };
+                
+                nodes.push(parent);
+            }
+            
+            // Generate codes
+            const codes = {};
+            function generateCodes(node, code) {
+                if (!node) return;
+                
+                if (node.char !== '*') {
+                    codes[node.char] = code || '0';
+                }
+                
+                generateCodes(node.left, code + '0');
+                generateCodes(node.right, code + '1');
+            }
+            
+            generateCodes(nodes[0], '');
+            
+            // Calculate compression stats
+            const originalBits = text.length * 8;
+            const compressedBits = Object.entries(codes).reduce((sum, [char, code]) => {
+                return sum + (freq[char] * code.length);
+            }, 0);
+            const compressionRatio = ((1 - compressedBits / originalBits) * 100).toFixed(1);
+            
+            // Display results
+            const resultDiv = document.getElementById('huffmanResult');
+            resultDiv.innerHTML = `
+                <div class="info-box">
+                    <h4><i class="fas fa-project-diagram"></i> Huffman Coding Results</h4>
+                    <p><strong>Text:</strong> "${text}"</p>
+                    <p><strong>Character frequencies:</strong></p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;">
+                        ${Object.entries(freq).map(([char, count]) => 
+                            `<div style="padding: 8px 12px; background: var(--primary); color: white; border-radius: 5px;">
+                                '${char}': ${count}
+                            </div>`
+                        ).join('')}
+                    </div>
+                    <p><strong>Huffman Codes:</strong></p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;">
+                        ${Object.entries(codes).map(([char, code]) => 
+                            `<div style="padding: 8px 12px; background: var(--success); color: white; border-radius: 5px;">
+                                '${char}' → ${code}
+                            </div>`
+                        ).join('')}
+                    </div>
+                    <p><strong>Compression:</strong> ${originalBits} bits → ${compressedBits} bits</p>
+                    <p><strong>Compression ratio:</strong> ${compressionRatio}%</p>
+                    <p><strong>Greedy Strategy:</strong> Always merge two nodes with smallest frequencies</p>
+                </div>
+            `;
+        }
+        
+        // =====================
+        // Comparison Game
+        // =====================
+        function compareGreedyVsDP() {
+            // Example: 0/1 Knapsack problem
+            const items = [
+                { weight: 10, value: 60 },
+                { weight: 20, value: 100 },
+                { weight: 30, value: 120 }
+            ];
+            const capacity = 50;
+            
+            // Greedy solution (by value/weight ratio)
+            const greedyItems = [...items].sort((a, b) => 
+                (b.value / b.weight) - (a.value / a.weight)
+            );
+            
+            let greedyWeight = 0;
+            let greedyValue = 0;
+            let greedySelected = [];
+            
+            for (const item of greedyItems) {
+                if (greedyWeight + item.weight <= capacity) {
+                    greedyWeight += item.weight;
+                    greedyValue += item.value;
+                    greedySelected.push(`Item ${items.indexOf(item) + 1}`);
+                }
+            }
+            
+            // DP solution (optimal)
+            const n = items.length;
+            const dp = Array(n + 1).fill().map(() => Array(capacity + 1).fill(0));
+            
+            for (let i = 1; i <= n; i++) {
+                for (let w = 1; w <= capacity; w++) {
+                    if (items[i-1].weight <= w) {
+                        dp[i][w] = Math.max(
+                            dp[i-1][w],
+                            items[i-1].value + dp[i-1][w - items[i-1].weight]
+                        );
+                    } else {
+                        dp[i][w] = dp[i-1][w];
+                    }
+                }
+            }
+            
+            const dpValue = dp[n][capacity];
+            
+            const resultDiv = document.getElementById('comparisonResult');
+            resultDiv.innerHTML = `
+                <div class="warning-box">
+                    <h4><i class="fas fa-code-compare"></i> Greedy vs DP: 0/1 Knapsack</h4>
+                    <p><strong>Capacity:</strong> ${capacity}</p>
+                    <p><strong>Items:</strong></p>
+                    <ul>
+                        ${items.map((item, i) => 
+                            `<li>Item ${i + 1}: weight=${item.weight}, value=${item.value}, ratio=${(item.value/item.weight).toFixed(2)}</li>`
+                        ).join('')}
+                    </ul>
+                    <p><strong>Greedy Solution:</strong> Value = $${greedyValue}, Selected: [${greedySelected.join(', ')}]</p>
+                    <p><strong>DP Solution (Optimal):</strong> Value = $${dpValue}</p>
+                    <p><strong>Difference:</strong> Greedy gets ${((greedyValue / dpValue) * 100).toFixed(1)}% of optimal value</p>
+                    <p><strong>Conclusion:</strong> Greedy doesn't always give optimal solution for 0/1 Knapsack!</p>
+                </div>
+            `;
+        }
+        
+        // =====================
+        // Practice Problems
+        // =====================
+        function showBeginnerProblems() {
+            alert(`Beginner Greedy Problems:\n\n1. Coin Change (US System)\n   - Make change using fewest coins\n   - Coins: 25, 10, 5, 1\n\n2. Activity Selection\n   - Maximum non-overlapping activities\n   - Greedy: Pick earliest finishing\n\n3. Fractional Knapsack\n   - Take fractions of items\n   - Greedy: Highest value/weight ratio first\n\nTry these in the interactive games above!`);
+        }
+        
+        function showIntermediateProblems() {
+            alert(`Intermediate Greedy Problems:\n\n1. Huffman Coding\n   - Optimal prefix codes\n   - Greedy: Merge smallest frequencies\n\n2. Dijkstra's Algorithm\n   - Shortest path in weighted graphs\n   - Greedy: Always explore closest vertex\n\n3. Minimum Spanning Tree (Kruskal/Prim)\n   - Connect all vertices with minimum weight\n   - Greedy: Add smallest edge that doesn't form cycle`);
+        }
+        
+        function showAdvancedProblems() {
+            alert(`Advanced Greedy Problems:\n\n1. Set Cover Problem\n   - Cover all elements with fewest sets\n   - Greedy gives O(log n) approximation\n\n2. Traveling Salesman Approximation\n   - Nearest neighbor heuristic\n   - Greedy: Always go to closest unvisited city\n\n3. Greedy Approximation Algorithms\n   - Many NP-hard problems have greedy approximations\n   - Trade optimality for efficiency`);
+        }
+        
+        // =====================
+        // Initialize Page
+        // =====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize coin change
+            initializeCoinChange();
+            
+            // Initialize activities
+            initializeActivities();
+            
+            // Initialize fractional knapsack
+            generateRandomItems();
+            
+            // Set up event listeners
+            document.getElementById('changeAmount').addEventListener('change', initializeCoinChange);
+            document.getElementById('changeAmount').addEventListener('input', initializeCoinChange);
+            
+            console.log('Greedy Algorithms website loaded!');
+        });
+    </script>
+</body>
+</html>
