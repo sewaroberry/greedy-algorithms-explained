@@ -68,4 +68,4 @@ Or use a local server:
     npx http-server 
 
 
-Made with ❤️ for the algorithms community
+**Made with ❤️ for the algorithms community**
